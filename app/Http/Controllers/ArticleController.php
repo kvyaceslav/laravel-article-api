@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ArticleProcessed;
 use App\Http\Requests\ArticleRequest;
 use App\Models\Article;
 use App\Traits\Permission;
@@ -13,9 +14,9 @@ class ArticleController extends Controller
     use Permission;
 
     public const MESSAGES = [
-        'store' => 'Article was created successfully!',
-        'update' => 'Article was updated successfully!',
-        'delete' => 'Article was deleted successfully!',
+        'store' => 'ArticleProcessed was created successfully!',
+        'update' => 'ArticleProcessed was updated successfully!',
+        'delete' => 'ArticleProcessed was deleted successfully!',
         'permission' => 'You do not have permission to perform this action!',
     ];
 
@@ -27,7 +28,7 @@ class ArticleController extends Controller
         return response()
             ->json(Article::getActive()->get(), Response::HTTP_OK);
     }
-
+    
     /**
      * @param Article $article
      * @return JsonResponse
@@ -48,7 +49,7 @@ class ArticleController extends Controller
     {
         auth()->user()->articles()->create($request->all());
 
-        // TODO: Add event for send email about article created
+        event(new ArticleProcessed());
 
         return response()->json(self::MESSAGES['store']);
     }
@@ -67,7 +68,7 @@ class ArticleController extends Controller
             );
         }
 
-        // TODO: Add event for send email about article updated
+        event(new ArticleProcessed());
 
         $article->update($request->all());
 
@@ -89,7 +90,7 @@ class ArticleController extends Controller
 
         $article->delete();
 
-        // TODO: Add event for send email about article deleted
+        event(new ArticleProcessed());
 
         return response()->json(self::MESSAGES['delete']);
     }
